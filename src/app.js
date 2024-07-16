@@ -5,7 +5,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-
 dotenv.config();
 const app = express();
 app.use(
@@ -26,13 +25,18 @@ export const initializeSocket = () => {
   io = new Server(server, {
     cors: true,
   });
-
+  
   io.on("connection", () => {
     console.log("connected");
   });
 };
 
 //routes
+import userRouter from "./routes/user.route.js";
+
+app.use('/api/v1/users/',userRouter)
+
+
 
 // error handler
 app.use((err, _, res ) => {
