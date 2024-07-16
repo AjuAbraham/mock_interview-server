@@ -4,7 +4,7 @@ import { createServer } from "http";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-
+import { handleRoom } from "./socket/config.js";
 dotenv.config();
 const app = express();
 app.use(
@@ -26,8 +26,8 @@ export const initializeSocket = () => {
     cors: true,
   });
   
-  io.on("connection", () => {
-    console.log("connected");
+  io.on("connection", (socket) => {
+      socket.on("room-info",(data)=>handleRoom(data,socket,io))
   });
 };
 
