@@ -14,3 +14,5 @@ dbConnect()
     console.error("Database connection failed:", error.messsage);
     process.exit(1); // Exit the process with an error code
   });
+  
+  
