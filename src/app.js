@@ -35,14 +35,8 @@ export const initializeSocket = () => {
   io.on("connection", (socket) => {
       socket.on("room-info",(data)=>handleRoom(data,socket,io))
 
-      // socket.on("user-call",(data)=>sendCall(data,socket,io))
-      // socket.on("call-accept",(data)=>acceptCall(data,socket,io))
-      // socket.on("negotiation-needed",(data)=>negotiationNeeded(data,socket,io))
-      // socket.on("negotiation-done",(data)=>negotiationComplete(data,socket,io))
-
-
       socket.on("disconnect",()=>{
-        console.log("User disconnected");
+        console.log(`User disconnected: ${socket.id}`);
       })
   });
 };

@@ -1,5 +1,5 @@
 
-const roomIdToUserIdsMap = new Map();
+export const roomIdToUserIdsMap = new Map();
 
 export const handleRoom = (data, socket, io) => {
   const {user, roomId } = data;
