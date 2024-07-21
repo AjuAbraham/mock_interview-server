@@ -5,11 +5,13 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import {  handleRoom} from "./socket/config.js";
+
 dotenv.config();
 const app = express();
 app.use(
   cors({
     origin: process.env.ORIGIN,
+    credentials:true
   })
 );
 
@@ -19,6 +21,10 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 
 export const server = createServer(app);
+
+
+
+
 let io;
 
 export const initializeSocket = () => {
