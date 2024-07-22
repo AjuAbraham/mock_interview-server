@@ -34,7 +34,6 @@ export const initializeSocket = () => {
   
   io.on("connection", (socket) => {
       socket.on("room-info",(data)=>handleRoom(data,socket,io))
-
       socket.on("disconnect",()=>{
         console.log(`User disconnected: ${socket.id}`);
       })
