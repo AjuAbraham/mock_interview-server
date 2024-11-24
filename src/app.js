@@ -5,9 +5,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import {  handleRoom} from "./socket/config.js";
-
 dotenv.config();
 const app = express();
+
 app.use(
   cors({
     origin: process.env.ORIGIN,
@@ -43,15 +43,7 @@ export const initializeSocket = () => {
 //routes
 import userRouter from "./routes/user.route.js";
 
-app.use('/api/v1/users/',userRouter)
+app.use('/api/v1/users',userRouter)
 
 
 
-// error handler
-app.use((err, _, res ) => {
-  const statusCode = err.statusCode || 500;
-  return res.status(statusCode).json({
-    message: err.message,
-    success: false,
-  })
-});

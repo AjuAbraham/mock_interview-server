@@ -1,10 +1,12 @@
 import {Router} from 'express'
-import { userLogin, userRegister } from '../controllers/user.controller.js';
+import { userLogin, userLogout, userRegister } from '../controllers/user.controller.js';
+import { verifyJwt } from '../middlewares/auth.middleware.js';
 
 const userRouter =  Router();
 
-userRouter.route('/sign-up').post(userRegister)
-userRouter.route('/sign-in').post(userLogin)
+userRouter.route('/register').post(userRegister)
+userRouter.route('/login').post(userLogin)
+userRouter.route('/logout').post(verifyJwt,userLogout)
 
 
 export default userRouter;
