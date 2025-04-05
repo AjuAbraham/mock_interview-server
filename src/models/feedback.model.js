@@ -6,7 +6,14 @@ const feedbackSchema = new Schema(
     type:String,
     required:[true,"Content is required"]
    },
+   rating:{
+    type:Number,
+   },
    owner:{
+    type:Schema.Types.ObjectId,
+    ref:"User"
+   },
+   interviewee:{
     type:Schema.Types.ObjectId,
     ref:"User"
    }

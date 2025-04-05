@@ -1,49 +1,31 @@
-/* eslint-disable no-undef */
-import { Server } from "socket.io";
-import { createServer } from "http";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import {  handleRoom} from "./socket/config.js";
+import userRouter from "./routes/user.route.js";
+import StreamRouter from "./routes/stream.route.js";
+import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
+
 dotenv.config();
 const app = express();
+const authMiddleware = ClerkExpressWithAuth();
 
 app.use(
   cors({
-    origin: process.env.ORIGIN,
-    credentials:true
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
   })
 );
 
 // Config middlewares
+app.use(authMiddleware);
 app.use(express.json({ limit: "20kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 
-export const server = createServer(app);
-
-
-
-
-let io;
-
-export const initializeSocket = () => {
-  io = new Server(server, {
-    cors: true,
-  });
-  
-  io.on("connection", (socket) => {
-      socket.on("room-info",(data)=>handleRoom(data,socket,io))
-      socket.on("disconnect",()=>{
-        console.log(`User disconnected: ${socket.id}`);
-      })
-  });
-};
-
 //routes
-import userRouter from "./routes/user.route.js";
 
-app.use('/api/v1/users',userRouter)
+app.use("/api/webhooks", userRouter);
+app.use("/api/v1/stream", StreamRouter);
 
-
-
+export default app;

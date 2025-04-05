@@ -1,87 +1,71 @@
-import { User } from "../models/user.model.js";
+import { Users } from "../models/users.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-const userRegister = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-  if ((!username, !email, !password)) {
-   return res.status(400).json({
-      message: "All fields are required",
-      success: false,
-    });;
-  }
-  const user = await User.findOne({ email });
-  if (user) {
-     return res.status(409).json({
-      message:  "User already exsist",
-      success: false,
-    });
-  }
-  const newUser = await User.create({ username:username.toLowerCase(), email, password });
+const handleUser = asyncHandler(async (req, res) => {
+  try {
+    const { type, data } = req.body;
 
-  const createdUser = await User.findById(newUser._id).select("-password");
+    if (type === "user.created") {
+      const exsitingUser = await Users.findOne({
+        clerkId: data.id,
+      });
+      if (exsitingUser) {
+        return res.status(400).json({ message: "User already exsist" });
+      }
+      const newUser = await Users.create({
+        clerkId: data.id,
+        email: data.email_addresses[0].email_address,
+        username: data.username || "",
+      });
+      if (newUser) {
+        return res
+          .status(200)
+          .json({ message: "User Created successfully", user: newUser });
+      }
+    } else if (type === "user.updated") {
+      const updatedUser = await Users.findOneAndUpdate(
+        { clerkId: data.id },
+        {
+          email: data.email_addresses[0]?.email_address,
+          username: data.username || null,
+        },
+        { new: true }
+      );
 
-  if (!createdUser) {
+      if (updatedUser) {
+        res.status(200).json({
+          message: "User Updated successfully",
+          success: true,
+          user: updatedUser,
+        });
+      }
+    } else if (type === "user.deleted") {
+      const deletedUser = await Users.deleteOne({ clerkId: data.id });
+      if (deletedUser) {
+        res.status(200).json({
+          message: "User Deleted successfully",
+          success: true,
+        });
+      }
+    }
+  } catch (error) {
     return res.status(500).json({
-      message: "Unable to register user",
-      success: false,
-    });
-  } 
-  return res
-    .status(201)
-    .json({createdUser, message:"Registered Successfully"});
-});
-
-const userLogin = asyncHandler(async (req, res) => {
-   const {email,password} =req.body;
-   if((!email || !password)){
-    return res.status(400).json({
-      message: "All fields are required",
-      success: false,
-    });
-   }
-   const user = await User.findOne({email});
-   if(!user){
-    return res.status(500).json({
-      message: "Unable to find User",
-      success: false,
-    });;
-   } 
-   const isPasswordCorrect = await user.checkPassword(password);
-   
-   if(!isPasswordCorrect){
-    return res.status(400).json({
-      message:"password is incorrect",
-      success: false,
-    });
-   }
-   const accessToken =  user.generateAccessToken();
-   if(!accessToken){
-    return  res.status(500).json({
-      message:"Unable to generate accessToken",
-      success: false,
-    });
-   }
-   return res.status(200).json({accessToken,message:"Logged in successfully"})
-});
-
-const userLogout = asyncHandler(async (req, res) => {
- 
-  const user = req.user;
-  if(!user){
-   return res.status(404).json({
-    message:"Unauthorized access",
-    success: false,
-  });
-  } 
-  const logOutUser = await User.findByIdAndUpdate(user._id,{accessToken:''},{new:true});
-  if(!logOutUser){
-    return res.status(500).json({
-      message:"Unable to logout user",
+      message: error.message,
       success: false,
     });
   }
-  return res.status(200).json({message:"Logged out successfully"})
 });
 
+const getUser = asyncHandler(async (req, res) => {
+  const user_id = req.user;
+  if (!user_id) {
+    return res.status(400).json({ message: "User not provided" });
+  }
+  const user = await Users.findOne({ clerkId: user_id });
+  if (!user) {
+    return res.status(500).json({ message: "Unable to get user" });
+  }
+  return user;
+});
 
-export { userRegister, userLogin ,userLogout};
+export { handleUser, getUser };
